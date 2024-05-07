@@ -11,7 +11,7 @@ namespace MikoshiASP.Engine
 	public class Core : Memory,ConnectionHandler
 	{
 
-        private string _APIKEY = "KEY";
+        private string _APIKEY = "key";
         string apiUrl = "https://openrouter.ai/api/v1/chat/completions";
 
         public async Task<string> local_api()
@@ -103,17 +103,16 @@ namespace MikoshiASP.Engine
 
                 List<Dictionary<string, string>> promptList = new List<Dictionary<string, string>>();
 
-                promptList.Add(new Dictionary<string, string>
-                    {
-                        { "role", "system" },
-                        { "content", string.Join("\n", open_json($"./json_{chr}/high_memory.json")) }
-                    });
 
                 foreach (string line in userContent.Split('\n'))
                 {
-                    string role = line.Contains("N:") ? "user" : "assistant";
-                    string content = line;
-                    promptList.Add(new Dictionary<string, string> { { "role", role }, { "content", content } });
+                    if (line != " " || line != "")
+                    {
+
+                        string role = line.Contains("N:") ? "user" : "assistant";
+                        string content = line;
+                        promptList.Add(new Dictionary<string, string> { { "role", role }, { "content", content } });
+                    }
                 }
 
                 // Add user prompt to the end of promptList
@@ -122,6 +121,12 @@ namespace MikoshiASP.Engine
                 // Trim promptList to the last 12 elements
                 int cut = Math.Max(0, promptList.Count - 12);
                 promptList = promptList.Skip(cut).ToList();
+
+                promptList.Add(new Dictionary<string, string>
+                    {
+                        { "role", "system" },
+                        { "content", string.Join("\n", open_json($"./json_{chr}/high_memory.json")) }
+                    });
 
                 Dictionary<string, object> finalPrompt = new Dictionary<string, object>
                 {

@@ -33,13 +33,13 @@ namespace MikoshiASP.Controllers
                 { "br", _mbuff.br},
                 { "hm", _mbuff.hm }
             };
-            string json = JsonSerializer.Serialize(buffer, new JsonSerializerOptions
-            {
-                WriteIndented = true
-            });
+            //string json = JsonSerializer.Serialize(buffer, new JsonSerializerOptions
+            //{
+            //    WriteIndented = true
+            //});
 
-            Console.WriteLine("JSON Structure:");
-            Console.WriteLine(json);
+            //Console.WriteLine("JSON Structure:");
+            //Console.WriteLine(jsonson);
             return Ok(buffer);
         }
     }
