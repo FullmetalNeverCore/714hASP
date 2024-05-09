@@ -109,6 +109,11 @@ namespace MikoshiASP.Engine
 
                 List<Dictionary<string, string>> promptList = new List<Dictionary<string, string>>();
 
+                promptList.Add(new Dictionary<string, string>
+                    {
+                        { "role", "system" },
+                        { "content", string.Join("\n", open_json($"./json_{chr}/high_memory.json")) }
+                    });
 
                 foreach (string line in userContent.Split('\n'))
                 {
@@ -121,18 +126,9 @@ namespace MikoshiASP.Engine
                     }
                 }
 
-                // Add user prompt to the end of promptList
                 promptList.Add(new Dictionary<string, string> { { "role", "user" }, { "content", "N: " + text1 } });
 
-                // Trim promptList to the last 12 elements
-                int cut = Math.Max(0, promptList.Count - 12);
-                promptList = promptList.Skip(cut).ToList();
 
-                promptList.Add(new Dictionary<string, string>
-                    {
-                        { "role", "system" },
-                        { "content", string.Join("\n", open_json($"./json_{chr}/high_memory.json")) }
-                    });
 
                 Dictionary<string, object> finalPrompt = new Dictionary<string, object>
                 {
