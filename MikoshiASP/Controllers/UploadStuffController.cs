@@ -14,16 +14,17 @@ namespace MikoshiASP.Controllers
     [ApiController]
     public class UploadStuffController : Controller
     {
-        private Core _core = new Core();
+        private Core _core;
         private readonly Model _model;
         private string _memoryplusnew;
         private readonly msgBuffer _mbuff;
 
 
-        public UploadStuffController(Model model,msgBuffer mb)
+        public UploadStuffController(Model model,msgBuffer mb,AKeyHandler api)
         {
             _model = model;
-            _mbuff = mb; 
+            _mbuff = mb;
+            _core = new Core(api.API_KEY);
         }
 
         [HttpPost]

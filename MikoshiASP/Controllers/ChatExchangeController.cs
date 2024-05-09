@@ -17,12 +17,12 @@ namespace MikoshiASP.Controllers
         private readonly msgBuffer _mbuff;
         private readonly Model _model;
         private string _memoryplusnew;
-        private Core _core = new Core();
+        private Core _core;
 
-        public ChatExchangeController(msgBuffer mb,Model model)
+        public ChatExchangeController(msgBuffer mb,Model model,AKeyHandler api)
         {
             _mbuff = mb;
-
+            _core = new Core(api.API_KEY);
             _model = model;
         }
 

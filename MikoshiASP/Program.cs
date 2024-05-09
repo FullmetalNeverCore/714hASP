@@ -11,8 +11,14 @@ builder.Services.AddSwaggerGen();
 
 
 
+
+
+//single user singletones
 builder.Services.AddSingleton<Model>();
 builder.Services.AddSingleton<msgBuffer>();
+builder.Services.AddSingleton<AKeyHandler>();
+
+
 
 
 var app = builder.Build();

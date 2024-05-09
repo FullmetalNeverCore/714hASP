@@ -11,8 +11,14 @@ namespace MikoshiASP.Engine
 	public class Core : Memory,ConnectionHandler
 	{
 
-        private string _APIKEY = "key";
+        private AKeyHandler _API;
+        private string _APIKEY; //todo: create endpoint for handling api keys
         string apiUrl = "https://openrouter.ai/api/v1/chat/completions";
+
+        public Core(string api="nokey")
+        {
+            _APIKEY = api;
+        }
 
         public async Task<string> local_api()
         {
@@ -166,9 +172,9 @@ namespace MikoshiASP.Engine
         {
             try
             {
-                using (StreamWriter writer = new StreamWriter(path))
+                using (FileStream writer = new FileStream(path,FileMode.OpenOrCreate,FileAccess.ReadWrite))
                 {
-                    writer.Write(data);
+                    writer.Write(Encoding.ASCII.GetBytes(data),0,data.Length);
                 }
 
                 Console.WriteLine("Text saved to file successfully.");
