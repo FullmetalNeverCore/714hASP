@@ -117,7 +117,7 @@ namespace MikoshiASP.Engine
 
                 foreach (string line in userContent.Split('\n'))
                 {
-                    if (line != " " || line != "")
+                    if (System.String.IsNullOrWhiteSpace(line))
                     {
 
                         string role = line.Contains("N:") ? "user" : "assistant";
@@ -168,9 +168,9 @@ namespace MikoshiASP.Engine
         {
             try
             {
-                using (FileStream writer = new FileStream(path,FileMode.OpenOrCreate,FileAccess.ReadWrite))
+                using (StreamWriter writer = new StreamWriter(path))
                 {
-                    writer.Write(Encoding.ASCII.GetBytes(data),0,data.Length);
+                    writer.Write(data);
                 }
 
                 Console.WriteLine("Text saved to file successfully.");

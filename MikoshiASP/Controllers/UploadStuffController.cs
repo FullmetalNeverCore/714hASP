@@ -41,11 +41,16 @@ namespace MikoshiASP.Controllers
                 }
                 else
                 {
-                    _memoryplusnew = $"{_model.chr}:{model.data} {System.Environment.NewLine}";
-                    Console.WriteLine("Saving brain...");
-                    Console.WriteLine(_memoryplusnew);
-                    _core.save_json(_memoryplusnew, $"json_{_model.chr}/brain.json");
-                    _mbuff.br = _core.open_json($"./json_{_model.chr}/brain.json");
+                    try
+                    {
+                        _core.save_json(model.data, $"json_{_model.chr}/brain.json");
+                        _mbuff.br = _core.open_json($"./json_{_model.chr}/brain.json");
+                    }
+                    catch(Exception ex)
+                    {
+                        Console.WriteLine(ex);
+                    }
+
                 }
                 return Ok("Data updated successfully");
             }
