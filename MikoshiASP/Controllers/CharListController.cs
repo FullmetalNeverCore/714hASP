@@ -10,6 +10,7 @@ using MikoshiASP.Controllers.Structures;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
+using MikoshiASP.Engine;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -40,7 +41,7 @@ namespace MikoshiASP.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex.Message);
+                Core.save_json($"charlist: {ex.Message}", "./error.json");
             }
             return folderNames;
         }
@@ -93,22 +94,19 @@ namespace MikoshiASP.Controllers
                 }
                 catch (Exception ex)
                 {
+                    Core.save_json($"charlist: {ex.Message}", "./error.json");
                     Console.WriteLine($"An error occurred: {ex.Message}");
                 }
 
 
             }
-            catch (FileNotFoundException)
+            catch (FileNotFoundException ex)
             {
-                _logger.LogError($"File not found: {parentDir}");
+                Core.save_json($"charlist: {ex.Message}", "./error.json");
             }
-            catch (JsonException)
+            catch (JsonException ex)
             {
-                _logger.LogError($"Invalid JSON format in file: {parentDir}");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error reading JSON file: {ex.Message}");
+                Core.save_json($"charlist: {ex.Message}", "./error.json");
             }
 
             return link;

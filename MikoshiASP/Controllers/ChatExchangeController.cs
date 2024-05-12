@@ -35,25 +35,33 @@ namespace MikoshiASP.Controllers
             Console.WriteLine(_model.chr);
             Console.WriteLine(value.chat);
             Console.WriteLine(value.type);
-            switch (value.type)
+            try
             {
-                case "Mistral":
-                    chat = $"{value.chat} {System.Environment.NewLine} {_model.chr}:";
-                    Console.WriteLine("Not Implemented");
-                    break;
-                default:
-                    chat = $"{value.chat} {System.Environment.NewLine} {_model.chr}:";
-                    answ = await _core.prompt_builder(chat, Double.Parse(_model.temp), 1.0, Double.Parse(_model.fpen), Double.Parse(_model.ppen), _model.chr, value.type);
-                    Console.WriteLine(answ);
-                    _mbuff.text = new List<string>() { "", $"N:{value.chat}", $"{_model.chr}:{answ}" };
-                    Console.WriteLine($"N:{value.chat} {_model.chr}:{answ}");
-                    string previousMemory = _core.open_json($"json_{_model.chr}/brain.json");
-                    _memoryplusnew = $"{previousMemory} N:{value.chat} {System.Environment.NewLine} {_model.chr}:{answ} {System.Environment.NewLine}";
-                    _core.save_json(_memoryplusnew, $"json_{_model.chr}/brain.json");
-                    _mbuff.br = _core.open_json($"./json_{_model.chr}/brain.json");
-                    _mbuff.hm = _core.open_json($"./json_{_model.chr}/high_memory.json");
-                    break;
+                switch (value.type)
+                {
+                    case "Mistral":
+                        chat = $"{value.chat} {System.Environment.NewLine} {_model.chr}:";
+                        Console.WriteLine("Not Implemented");
+                        break;
+                    default:
+                        chat = $"{value.chat} {System.Environment.NewLine} {_model.chr}:";
+                        answ = await _core.prompt_builder(chat, Double.Parse(_model.temp), 1.0, Double.Parse(_model.fpen), Double.Parse(_model.ppen), _model.chr, value.type);
+                        Console.WriteLine(answ);
+                        _mbuff.text = new List<string>() { "", $"N:{value.chat}", $"{_model.chr}:{answ}" };
+                        Console.WriteLine($"N:{value.chat} {_model.chr}:{answ}");
+                        string previousMemory = Core.open_json($"json_{_model.chr}/brain.json");
+                        _memoryplusnew = $"{previousMemory} N:{value.chat} {System.Environment.NewLine} {_model.chr}:{answ} {System.Environment.NewLine}";
+                        Core.save_json(_memoryplusnew, $"json_{_model.chr}/brain.json");
+                        _mbuff.br = Core.open_json($"./json_{_model.chr}/brain.json");
+                        _mbuff.hm = Core.open_json($"./json_{_model.chr}/high_memory.json");
+                        break;
+                }
             }
+            catch(Exception ex)
+            {
+                Core.save_json($"chatexchange:  {ex.Message}", "./error.json");
+            }
+
             
         }
 

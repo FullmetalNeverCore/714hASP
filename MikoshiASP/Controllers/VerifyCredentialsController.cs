@@ -16,7 +16,6 @@ namespace MikoshiASP.Controllers
     {
         private readonly Model _model;
         private readonly msgBuffer _mbuff;
-        private Core _core = new Core();
 
         public VerifyCredentialsController(Model model,msgBuffer mb)
         {
@@ -45,8 +44,8 @@ namespace MikoshiASP.Controllers
 
             //fill the buffer
             _mbuff.text = null;
-            _mbuff.br = _core.open_json($"./json_{_model.chr}/brain.json");
-            _mbuff.hm = _core.open_json($"./json_{_model.chr}/high_memory.json");
+            _mbuff.br = Core.open_json($"./json_{_model.chr}/brain.json");
+            _mbuff.hm = Core.open_json($"./json_{_model.chr}/high_memory.json");
 
             Console.WriteLine(_mbuff.br);
             Console.WriteLine(_mbuff.hm);

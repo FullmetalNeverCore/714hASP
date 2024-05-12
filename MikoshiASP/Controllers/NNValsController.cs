@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using MikoshiASP.Engine;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -23,7 +24,6 @@ namespace MikoshiASP.Controllers.Structures
         public IActionResult Post([FromBody] NNValues nnv)
         {
             try
-
             {
                 var possibleValues = new Dictionary<string, Action<string>>
                 {
@@ -37,7 +37,7 @@ namespace MikoshiASP.Controllers.Structures
             }
             catch(Exception ex)
             {
-          
+                Core.save_json($"nn_vals: Bad request,probably wrong body. {ex.Message}", "./error.json");
                 return BadRequest($"Bad request,probably wrong body.{ex}");
             }
          

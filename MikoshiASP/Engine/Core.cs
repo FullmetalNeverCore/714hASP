@@ -8,7 +8,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace MikoshiASP.Engine
 {
-	public class Core : Memory,ConnectionHandler
+	public class Core : ConnectionHandler
 	{
 
         private AKeyHandler _API;
@@ -25,12 +25,10 @@ namespace MikoshiASP.Engine
             throw new NotImplementedException();
         }
 
-        public string? open_json(string path)
+        public static string? open_json(string path)
         {
             try
             {
-                if (File.Exists(path))
-                {
                     string fileStr;
 
                     using (StreamReader reader = new StreamReader(path))
@@ -38,10 +36,11 @@ namespace MikoshiASP.Engine
                         fileStr = reader.ReadToEnd();
                     }
                     return fileStr;
-                }
+
             }
             catch(Exception ex)
             {
+                save_json($"CORE:open_json : {ex.Message}", "./error.json");
                 Console.WriteLine(ex.Message);
             }
 
@@ -51,53 +50,62 @@ namespace MikoshiASP.Engine
 
         public async Task<string> open_router_api(string data)
         {
-            using (HttpClient client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_APIKEY}");
-
-                var httpContent = new StringContent(data, Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await client.PostAsync(apiUrl, httpContent);
-
-                if (response.IsSuccessStatusCode)
+                using (HttpClient client = new HttpClient())
                 {
-                    string jsonResponse = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine("Received JSON response:");
-                    Console.WriteLine(jsonResponse);
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_APIKEY}");
 
-                    using (JsonDocument doc = JsonDocument.Parse(jsonResponse))
+                    var httpContent = new StringContent(data, Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await client.PostAsync(apiUrl, httpContent);
+
+                    if (response.IsSuccessStatusCode)
                     {
-                        JsonElement root = doc.RootElement;
+                        string jsonResponse = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine("Received JSON response:");
+                        Console.WriteLine(jsonResponse);
 
-                        JsonElement contentElement = root
-                            .GetProperty("choices")[0] // Access first element of "choices" array
-                            .GetProperty("message")   // Access "message" property
-                            .GetProperty("content");  // Access "content" property
-
-                        if (contentElement.ValueKind == JsonValueKind.String)
+                        using (JsonDocument doc = JsonDocument.Parse(jsonResponse))
                         {
-                            string content = contentElement.GetString();
-                            //Console.WriteLine("Extracted content:");
-                            //Console.WriteLine(content); // Print the extracted content
+                            JsonElement root = doc.RootElement;
 
-                            return content;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Content is not a string value.");
-                            return "Error: Content is not a string value";
+                            JsonElement contentElement = root
+                                .GetProperty("choices")[0] // Access first element of "choices" array
+                                .GetProperty("message")   // Access "message" property
+                                .GetProperty("content");  // Access "content" property
+
+                            if (contentElement.ValueKind == JsonValueKind.String)
+                            {
+                                string content = contentElement.GetString();
+                                //Console.WriteLine("Extracted content:");
+                                //Console.WriteLine(content); // Print the extracted content
+
+                                return content;
+                            }
+                            else
+                            {
+                                Console.WriteLine("Content is not a string value.");
+                                return "Error: Content is not a string value";
+                            }
                         }
                     }
-                }
-                else
-                {
-                    Console.WriteLine($"HTTP request failed with status code {response.StatusCode}");
+                    else
+                    {
+                        Console.WriteLine($"HTTP request failed with status code {response.StatusCode}");
 
-                    string errorResponse = await response.Content.ReadAsStringAsync();
-                    Console.WriteLine($"Error response content: {errorResponse}");
-                    return "Error";
+                        string errorResponse = await response.Content.ReadAsStringAsync();
+                        Console.WriteLine($"Error response content: {errorResponse}");
+                        return "Error";
+                    }
                 }
             }
+            catch(Exception ex)
+            {
+                save_json($"CORE:open_json : {ex.Message}", "./error.json");
+                return "Error";
+            }
+            
         }
     
 
@@ -149,7 +157,7 @@ namespace MikoshiASP.Engine
                 {
                     //case "Mistral":
                     //    local_api();
-                    //    break;
+                    //    break;321
                     default:
                         return await open_router_api(jsonRequest);
                 }
@@ -158,13 +166,14 @@ namespace MikoshiASP.Engine
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
+                save_json($"CORE:prompt_builder : {ex.Message}", "./error.json");
                 return "Error";
             }
         }
 
         //high memory is a file with persistent information about current dialogue,that model will consider as behavioral prompt
 
-        public void save_json(string data, string path, byte b = 0)
+        public static void save_json(string data, string path)
         {
             try
             {
@@ -178,6 +187,7 @@ namespace MikoshiASP.Engine
             catch (Exception ex)
             {
                 Console.WriteLine($"An error occurred: {ex.Message}");
+                save_json($"CORE:save_json : {ex.Message}", "./error.json");
             }
         }
     }

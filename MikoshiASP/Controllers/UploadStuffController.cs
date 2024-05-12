@@ -14,7 +14,6 @@ namespace MikoshiASP.Controllers
     [ApiController]
     public class UploadStuffController : Controller
     {
-        private Core _core;
         private readonly Model _model;
         private string _memoryplusnew;
         private readonly msgBuffer _mbuff;
@@ -24,7 +23,6 @@ namespace MikoshiASP.Controllers
         {
             _model = model;
             _mbuff = mb;
-            _core = new Core(api.API_KEY);
         }
 
         [HttpPost]
@@ -37,17 +35,18 @@ namespace MikoshiASP.Controllers
                 if(model.type == "high")
                 {
                     _memoryplusnew = $"{model.data} {System.Environment.NewLine}";
-                    _core.save_json(model.data, $"json_{_model.chr}/high_memory.json");
+                    Core.save_json(model.data, $"json_{_model.chr}/high_memory.json");
                 }
                 else
                 {
                     try
                     {
-                        _core.save_json(model.data, $"json_{_model.chr}/brain.json");
-                        _mbuff.br = _core.open_json($"./json_{_model.chr}/brain.json");
+                        Core.save_json(model.data, $"json_{_model.chr}/brain.json");
+                        _mbuff.br = Core.open_json($"./json_{_model.chr}/brain.json");
                     }
                     catch(Exception ex)
                     {
+                        Core.save_json($"upload_stuff: {ex.Message}", "./error.json");
                         Console.WriteLine(ex);
                     }
 
