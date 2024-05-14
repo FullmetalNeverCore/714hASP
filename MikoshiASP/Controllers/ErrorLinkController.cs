@@ -12,6 +12,7 @@ namespace MikoshiASP.Controllers
         [HttpGet]
         public IActionResult Get()
         {
+            //todo : add ram consumption to errmsg information,and other host info .
             try
             {
                 // Obtain the last error message from source 

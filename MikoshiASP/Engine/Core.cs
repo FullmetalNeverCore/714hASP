@@ -125,7 +125,7 @@ namespace MikoshiASP.Engine
 
                 foreach (string line in userContent.Split('\n'))
                 {
-                    if (System.String.IsNullOrWhiteSpace(line))
+                    if (!string.IsNullOrWhiteSpace(line))
                     {
 
                         string role = line.Contains("N:") ? "user" : "assistant";
@@ -142,7 +142,7 @@ namespace MikoshiASP.Engine
                 {
                     { "model", model },
                     { "messages", promptList },
-                    { "max_token", 300 },
+                    { "max_token", 150 },
                     { "temperature", temp },
                     { "frequency_penalty", fp },
                     { "presence_penalty", pp }
