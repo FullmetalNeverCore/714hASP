@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MikoshiASP.Controllers.Structures;
 using MikoshiASP.Engine;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MikoshiASP.Controllers
 {
@@ -16,39 +15,32 @@ namespace MikoshiASP.Controllers
     {
         private readonly Model _model;
         private readonly msgBuffer _mbuff;
+        private readonly ILogger<VerifyCredentialsController> _logger;
 
-        public VerifyCredentialsController(Model model,msgBuffer mb)
+        public VerifyCredentialsController(Model model, msgBuffer mb, ILogger<VerifyCredentialsController> logger)
         {
             _model = model;
             _mbuff = mb;
+            _logger = logger;
 
-            if(_model.temp == null) { _model.temp = "0.9"; }
-            if(_model.fpen == null) { _model.fpen = "0.7"; }
-            if(_model.ppen == null) { _model.ppen = "0.75"; }
+            if (_model.temp == null) { _model.temp = "0.9"; }
+            if (_model.fpen == null) { _model.fpen = "0.7"; }
+            if (_model.ppen == null) { _model.ppen = "0.75"; }
         }
+
         [HttpPost]
         public IActionResult Post([FromBody] EngineUpdate model)
         {
-            Console.WriteLine("VERIFCRED: Updating chr");
-            //updating chr
-
+            _logger.LogInformation("VERIFCRED: Updating chr");
+            // Updating chr
             _model.chr = model.chara;
 
-            //string json = JsonSerializer.Serialize(model, new JsonSerializerOptions
-            //{
-            //    WriteIndented = true
-            //});
-
-            //Console.WriteLine("JSON Structure:");
-            //Console.WriteLine(json);
-
-            //fill the buffer
+            // Fill the buffer
             _mbuff.text = null;
             _mbuff.br = Core.open_json($"./json_{_model.chr}/brain.json");
             _mbuff.hm = Core.open_json($"./json_{_model.chr}/high_memory.json");
 
-            Console.WriteLine(_mbuff.br);
-            Console.WriteLine(_mbuff.hm);
+            _logger.LogInformation("Updated buffer: br={br}, hm={hm}", _mbuff.br, _mbuff.hm);
 
             return Ok("Char updated");
         }
@@ -56,11 +48,11 @@ namespace MikoshiASP.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            Console.WriteLine("VERIFCRED: Returning chr");
-            //no chr return null
-            //204? 
-            return Ok($"Chr {_model.chr} Temp: {_model.temp} Fpen {_model.fpen} Ppen {_model.ppen}") != null ? Ok(_model.chr) : Ok(null);
+            _logger.LogInformation("VERIFCRED: Returning chr");
+            // Return the character information
+            var result = $"Chr {_model.chr} Temp: {_model.temp} Fpen {_model.fpen} Ppen {_model.ppen}";
+            _logger.LogInformation(result);
+            return Ok(result);
         }
     }
 }
-

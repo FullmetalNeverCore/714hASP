@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MikoshiASP.Controllers.Structures;
 using MikoshiASP.Engine;
 using Newtonsoft.Json.Linq;
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MikoshiASP.Controllers
 {
@@ -17,12 +17,13 @@ namespace MikoshiASP.Controllers
         private readonly Model _model;
         private string _memoryplusnew;
         private readonly msgBuffer _mbuff;
+        private readonly ILogger<UploadStuffController> _logger;
 
-
-        public UploadStuffController(Model model,msgBuffer mb,AKeyHandler api)
+        public UploadStuffController(Model model, msgBuffer mb, AKeyHandler api, ILogger<UploadStuffController> logger)
         {
             _model = model;
             _mbuff = mb;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -30,12 +31,12 @@ namespace MikoshiASP.Controllers
         {
             if (ModelState.IsValid)
             {
-                //saving high memory and saving brain memory
-
-                if(model.type == "high")
+                // Saving high memory and brain memory
+                if (model.type == "high")
                 {
-                    _memoryplusnew = $"{model.data} {System.Environment.NewLine}";
+                    _memoryplusnew = $"{model.data} {Environment.NewLine}";
                     Core.save_json(model.data, $"json_{_model.chr}/high_memory.json");
+                    _logger.LogInformation("High memory updated successfully for character {Character}.", _model.chr);
                 }
                 else
                 {
@@ -43,21 +44,21 @@ namespace MikoshiASP.Controllers
                     {
                         Core.save_json(model.data, $"json_{_model.chr}/brain.json");
                         _mbuff.br = Core.open_json($"./json_{_model.chr}/brain.json");
+                        _logger.LogInformation("Brain memory updated successfully for character {Character}.", _model.chr);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Core.save_json($"upload_stuff: {ex.Message}", "./error.json");
-                        Console.WriteLine(ex);
+                        _logger.LogError(ex, "An error occurred while updating brain memory for character {Character}.", _model.chr);
                     }
-
                 }
                 return Ok("Data updated successfully");
             }
             else
             {
+                _logger.LogWarning("Invalid model state received.");
                 return BadRequest(ModelState);
             }
         }
     }
 }
-

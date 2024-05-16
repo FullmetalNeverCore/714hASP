@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MikoshiASP.Engine;
-
-// For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MikoshiASP.Controllers.Structures
 {
@@ -14,10 +11,12 @@ namespace MikoshiASP.Controllers.Structures
     public class NNValsController : Controller
     {
         private readonly Model _model;
+        private readonly ILogger<NNValsController> _logger;
 
-        public NNValsController(Model model)
+        public NNValsController(Model model, ILogger<NNValsController> logger)
         {
             _model = model;
+            _logger = logger;
         }
 
         [HttpPost]
@@ -31,22 +30,27 @@ namespace MikoshiASP.Controllers.Structures
                     { "fpen", val => _model.fpen = val },
                     { "ppen", val => _model.ppen = val }
                 };
-                Console.WriteLine("Chaning Model...");
+
+                _logger.LogInformation("Changing Model...");
                 possibleValues[nnv.type](nnv.val);
+
+                _logger.LogInformation("Model changed: type={type}, value={value}", nnv.type, nnv.val);
                 return Ok();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Core.save_json($"nn_vals: Bad request,probably wrong body. {ex.Message}", "./error.json");
-                return BadRequest($"Bad request,probably wrong body.{ex}");
+                Core.save_json($"nn_vals: Bad request, probably wrong body. {ex.Message}", "./error.json");
+                _logger.LogError(ex, "An error occurred while changing model values.");
+                return BadRequest($"Bad request, probably wrong body. {ex.Message}");
             }
-         
         }
 
         [HttpGet]
         public IActionResult Get()
         {
-            return Ok($"CURRENT MODEL = chr {_model.chr} temp {_model.temp} fpen {_model.fpen} ppen {_model.ppen}");
+            var modelInfo = $"CURRENT MODEL = chr {_model.chr} temp {_model.temp} fpen {_model.fpen} ppen {_model.ppen}";
+            _logger.LogInformation(modelInfo);
+            return Ok(modelInfo);
         }
     }
 }

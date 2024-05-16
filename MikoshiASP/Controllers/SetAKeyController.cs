@@ -3,22 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using MikoshiASP.Controllers.Structures;
 using MikoshiASP.Engine;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace MikoshiASP.Controllers
 {
     [Route("api/setakey")]
     public class SetAKeyController : Controller
     {
-        private AKeyHandler _API;
+        private readonly AKeyHandler _API;
+        private readonly ILogger<SetAKeyController> _logger;
 
-        public SetAKeyController(AKeyHandler api)
+        public SetAKeyController(AKeyHandler api, ILogger<SetAKeyController> logger)
         {
-            //get API KEY signletone instance
-            _API = api; 
+            // Get API KEY singleton instance
+            _API = api;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -27,24 +28,22 @@ namespace MikoshiASP.Controllers
             return Ok($"{_API.API_KEY}");
         }
 
-
         [HttpPost]
         public IActionResult Post([FromBody] Types value)
         {
             try
             {
-                Console.WriteLine("Updating API_KEY....");
+                _logger.LogInformation("Updating API_KEY....");
                 _API.API_KEY = value.data;
+                _logger.LogInformation("API_KEY updated successfully.");
                 return Ok("Ok!");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine($"Error occured: {ex.Message}");
+                _logger.LogError(ex, "Error occurred while updating API_KEY.");
                 Core.save_json($"api/setakey: {ex.Message}", "./error.json");
                 return BadRequest(ex.Message);
             }
         }
-
     }
 }
-
