@@ -1,8 +1,17 @@
 ﻿using MikoshiASP.Controllers.Structures;
+using Microsoft.Extensions.Logging;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddLogging(loggingBuilder =>
+{
+    loggingBuilder.AddConsole(); // Use Console logging
+    loggingBuilder.AddDebug();   // Optionally add debug output
+});
+
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

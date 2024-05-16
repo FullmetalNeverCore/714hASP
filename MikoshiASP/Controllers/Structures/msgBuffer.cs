@@ -6,5 +6,7 @@ namespace MikoshiASP.Controllers.Structures
 		public List<string> text{ get; set; }
 		public string hm { get; set; }
 		public string br { get; set; }
+
 	}
+
 }

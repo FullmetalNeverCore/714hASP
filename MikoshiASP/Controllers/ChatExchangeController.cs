@@ -25,7 +25,7 @@ namespace MikoshiASP.Controllers
             _core = new Core(api.API_KEY);
             _model = model;
         }
-
+        //todo : made memory hard reset endpoint 
         [HttpPost]
         public async Task Post([FromBody] chatEx value)
         {
