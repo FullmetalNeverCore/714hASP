@@ -23,10 +23,12 @@
     <None Remove="json_Akeno\brain.jsonn" />
     <None Remove="json_Akeno\brain.json.save.1" />
     <None Remove="json_Akeno\brain.json.save.2" />
+    <None Remove="Controllers\Misc\" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Controllers\Structures\" />
     <Folder Include="Engine\" />
+    <Folder Include="Controllers\Misc\" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="json_Akeno\dump1011_29.json" />
