@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MikoshiASP.Controllers.Misc;
 using MikoshiASP.Controllers.Structures;
 using MikoshiASP.Engine;
 
@@ -41,7 +42,7 @@ namespace MikoshiASP.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error occurred while updating API_KEY.");
-                Core.save_json($"api/setakey: {ex.Message}", "./error.json");
+                LoggingErrors.LogErr(ex.Message);
                 return BadRequest(ex.Message);
             }
         }

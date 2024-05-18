@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MikoshiASP.Controllers.Misc;
 using MikoshiASP.Controllers.Structures;
 using MikoshiASP.Engine;
 
@@ -19,19 +20,44 @@ namespace MikoshiASP.Controllers
         private readonly Core _core;
         private readonly ILogger<ChatExchangeController> _logger;
 
+        string brain;
+        string hmemory;
+
         public ChatExchangeController(msgBuffer mb, Model model, AKeyHandler api, ILogger<ChatExchangeController> logger)
         {
             _mbuff = mb;
-            _core = new Core(api.API_KEY);
+            _core = new Core(api:api.API_KEY);
             _model = model;
             _logger = logger;
+            brain = $"json_{_model.chr}/ brain.json";
+            hmemory = $"./json_{_model.chr}/high_memory.json";
+        }
+
+
+        private async Task HandleInteraction(chatEx value)
+        {
+            string chat, answ;
+
+            chat = $"{value.chat} {Environment.NewLine} {_model.chr}:";
+            answ = await _core.prompt_builder(chat, double.Parse(_model.temp), 1.0, double.Parse(_model.fpen), double.Parse(_model.ppen), _model.chr, value.type);
+
+            _logger.LogInformation("Answer: {answ}", answ);
+            _mbuff.text = new List<string> { "", $"N:{value.chat}", $"{_model.chr}:{answ}" };
+            _logger.LogInformation($"N:{value.chat} {_model.chr}:{answ}");
+
+            string previousMemory = Core.open_json(brain);
+            _memoryplusnew = $"{previousMemory} N:{value.chat} {Environment.NewLine} {_model.chr}:{answ} {Environment.NewLine}";
+            Core.save_json(_memoryplusnew, brain);
+
+            _mbuff.br = Core.open_json(brain);
+            _mbuff.hm = Core.open_json(hmemory);
         }
 
         // TODO: Create an endpoint for hard reset of memory
         [HttpPost]
         public async Task Post([FromBody] chatEx value)
         {
-            string chat, answ;
+            
 
             _logger.LogInformation("chatExchange");
             _logger.LogInformation("Character: {chr}", _model.chr);
@@ -43,26 +69,16 @@ namespace MikoshiASP.Controllers
                 switch (value.type)
                 {
                     case "Mistral":
-                        chat = $"{value.chat} {Environment.NewLine} {_model.chr}:";
                         _logger.LogInformation("Mistral type is not implemented");
                         break;
                     default:
-                        chat = $"{value.chat} {Environment.NewLine} {_model.chr}:";
-                        answ = await _core.prompt_builder(chat, double.Parse(_model.temp), 1.0, double.Parse(_model.fpen), double.Parse(_model.ppen), _model.chr, value.type);
-                        _logger.LogInformation("Answer: {answ}", answ);
-                        _mbuff.text = new List<string> { "", $"N:{value.chat}", $"{_model.chr}:{answ}" };
-                        _logger.LogInformation($"N:{value.chat} {_model.chr}:{answ}");
-                        string previousMemory = Core.open_json($"json_{_model.chr}/brain.json");
-                        _memoryplusnew = $"{previousMemory} N:{value.chat} {Environment.NewLine} {_model.chr}:{answ} {Environment.NewLine}";
-                        Core.save_json(_memoryplusnew, $"json_{_model.chr}/brain.json");
-                        _mbuff.br = Core.open_json($"./json_{_model.chr}/brain.json");
-                        _mbuff.hm = Core.open_json($"./json_{_model.chr}/high_memory.json");
+                        await HandleInteraction(value);
                         break;
                 }
             }
             catch (Exception ex)
             {
-                Core.save_json($"chatexchange: {ex.Message}", "./error.json");
+                LoggingErrors.LogErr(ex.Message);
                 _logger.LogError(ex, "An error occurred during chat exchange");
             }
         }

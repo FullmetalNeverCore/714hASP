@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MikoshiASP.Controllers.Misc;
 using MikoshiASP.Controllers.Structures;
 using MikoshiASP.Engine;
 
@@ -26,8 +27,10 @@ namespace MikoshiASP.Controllers
         [HttpGet("{name}")]
         public IActionResult Get(string name)
         {
+            _logger.LogInformation("Memory reset request received for {name}", name);
             try
             {
+
                 string[] fullmemory = Core.open_json($"./json_{name}/brain.json").Split("N:");
                 _logger.LogInformation("Initial memory: {initialMemory}", fullmemory[0]);
 
@@ -39,16 +42,19 @@ namespace MikoshiASP.Controllers
             catch (IndexOutOfRangeException ex)
             {
                 _logger.LogError(ex, "IndexOutOfRangeException occurred while resetting memory for {name}", name);
+                LoggingErrors.LogErr(ex.Message);
                 return BadRequest($"IndexOutOfRange - {ex.Message}");
             }
             catch (NullReferenceException ex)
             {
                 _logger.LogError(ex, "NullReferenceException occurred while resetting memory for {name}", name);
+                LoggingErrors.LogErr(ex.Message);
                 return BadRequest($"NullReference - {ex.Message}");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "An unexpected error occurred while resetting memory for {name}", name);
+                LoggingErrors.LogErr(ex.Message);
                 return BadRequest($"Error - {ex.Message}");
             }
 

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -124,7 +124,15 @@ namespace MikoshiASP.Controllers
             {
                 string cleanName = name.Replace("json_", "");
                 List<string> imagePaths = _GetImages($"./{name}");
-                namelink.Add(cleanName, imagePaths[0]);
+
+                if (imagePaths.Count > 0)
+                {
+                    namelink.Add(cleanName, imagePaths[0]);
+                }
+                else
+                {
+                    _logger.LogWarning("No image links found for {cleanName}", cleanName);
+                }
             }
 
             return Ok(namelink);

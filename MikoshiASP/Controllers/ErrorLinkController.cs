@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MikoshiASP.Controllers.Misc;
 using MikoshiASP.Engine;
 
 namespace MikoshiASP.Controllers
@@ -38,7 +39,7 @@ namespace MikoshiASP.Controllers
             catch (Exception ex)
             {
                 // Handle any exceptions that occur during processing
-                Core.save_json($"api/errormsg : {ex.Message}", "./error.json");
+                LoggingErrors.LogErr(ex.Message);
                 _logger.LogError(ex, "An error occurred while processing the request.");
                 return BadRequest(ex.Message);
             }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MikoshiASP.Controllers.Misc;
 using MikoshiASP.Engine;
 
 namespace MikoshiASP.Controllers.Structures
@@ -39,7 +40,7 @@ namespace MikoshiASP.Controllers.Structures
             }
             catch (Exception ex)
             {
-                Core.save_json($"nn_vals: Bad request, probably wrong body. {ex.Message}", "./error.json");
+                LoggingErrors.LogErr(ex.Message);
                 _logger.LogError(ex, "An error occurred while changing model values.");
                 return BadRequest($"Bad request, probably wrong body. {ex.Message}");
             }

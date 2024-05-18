@@ -5,6 +5,7 @@ using System.Xml.Linq;
 using MikoshiASP.Controllers.Structures;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using MikoshiASP.Controllers.Misc;
 
 namespace MikoshiASP.Engine
 {
@@ -29,19 +30,11 @@ namespace MikoshiASP.Engine
         {
             try
             {
-                    string fileStr;
-
-                    using (StreamReader reader = new StreamReader(path))
-                    {
-                        fileStr = reader.ReadToEnd();
-                    }
-                    return fileStr;
-
+                return File.ReadAllText(path);
             }
             catch(Exception ex)
             {
-                save_json($"CORE:open_json : {ex.Message}", "./error.json");
-                Console.WriteLine(ex.Message);
+                LoggingErrors.LogErr(ex.Message);
             }
 
             return null;
@@ -96,13 +89,14 @@ namespace MikoshiASP.Engine
 
                         string errorResponse = await response.Content.ReadAsStringAsync();
                         Console.WriteLine($"Error response content: {errorResponse}");
+                        LoggingErrors.LogErr(errorResponse);
                         return "Error";
                     }
                 }
             }
             catch(Exception ex)
             {
-                save_json($"CORE:open_json : {ex.Message}", "./error.json");
+                LoggingErrors.LogErr(ex.Message);
                 return "Error";
             }
             
@@ -113,14 +107,14 @@ namespace MikoshiASP.Engine
         {
             try
             {
-                string userContent = string.Join("\n", open_json($"./json_{chr}/brain.json"));
+                string userContent = open_json($"./json_{chr}/brain.json");
 
                 List<Dictionary<string, string>> promptList = new List<Dictionary<string, string>>();
 
                 promptList.Add(new Dictionary<string, string>
                     {
                         { "role", "system" },
-                        { "content", string.Join("\n", open_json($"./json_{chr}/high_memory.json")) }
+                        { "content",open_json($"./json_{chr}/high_memory.json") }
                     });
 
                 foreach (string line in userContent.Split('\n'))
@@ -165,8 +159,7 @@ namespace MikoshiASP.Engine
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                save_json($"CORE:prompt_builder : {ex.Message}", "./error.json");
+                LoggingErrors.LogErr(ex.Message);
                 return "Error";
             }
         }
@@ -186,8 +179,7 @@ namespace MikoshiASP.Engine
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"An error occurred: {ex.Message}");
-                save_json($"CORE:save_json : {ex.Message}", "./error.json");
+                LoggingErrors.LogErr(ex.Message);
             }
         }
     }
